@@ -12,7 +12,7 @@ df = pd.read_csv("sample_wind_mar.csv", parse_dates=["Timestamp"])
 # Plot graph
 
 ax = WindroseAxes.from_ax()
-ax.bar(df['direction'], df['speed'], cmap=cm.Blues, normed=True, bins=np.arange(0, max(df['speed']), 5), opening=0.8, edgecolor='gray')
+ax.bar(df['direction'], df['speed'], cmap=cm.PuBu, normed=True, bins=np.arange(0, max(df['speed']), 5), opening=0.8, edgecolor='white')
 
 ax.set_xticklabels(['E', 'NE', 'N', 'NW','W', 'SW', 'S', 'SE'])
 
