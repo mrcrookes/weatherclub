@@ -1,0 +1,25 @@
+import pandas as pd
+from windrose import WindroseAxes
+from matplotlib import pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+import seaborn as sns
+
+# Create wind speed and direction variables
+
+df = pd.read_csv("sample_wind_mar.csv", parse_dates=["Timestamp"])
+
+# Plot graph
+
+ax = WindroseAxes.from_ax()
+ax.bar(df['direction'], df['speed'], cmap=cm.gray, normed=True, bins=np.arange(0, max(df['speed']), 5), opening=0.8, edgecolor='white')
+
+ax.set_xticklabels(['E', 'NE', 'N', 'NW','W', 'SW', 'S', 'SE'])
+
+ax.set_legend()
+ax.set_legend(title = 'Wind Speed in mph', bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
+ax.set_yticks(np.arange(10, 50, step=10))
+ax.set_yticklabels(np.arange(10, 50, step=10))
+
+ax.figure.savefig('windrose.png', bbox_inches='tight', dpi=600)
