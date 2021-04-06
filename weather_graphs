@@ -1,0 +1,96 @@
+import pandas as pd
+from matplotlib import pyplot as plt
+import numpy as np
+import seaborn as sns
+
+# Import weather data from .txt file, skip first two rows
+
+df = pd.read_csv("mar_2021.txt", header=None, skiprows=2, parse_dates=[[0, 1]], dayfirst = True, sep="\t")
+df.head()
+
+# Replace headers
+
+header = ['DateTime', 'Temp Out', 'Hi Temp', 'Low Temp', 'Out Hum', 'Dew Pt.', 'Wind Speed',
+ 'Wind Dir', 'Wind Run', 'Hi Speed', 'Hi Dir', 'Wind Chill', 'Heat Index', 'THW Index',
+ 'THSW Index', 'Bar', 'Rain', 'Rain Rate', 'Solar Rad.', 'Solar Energy', 'Hi Solar Rad.',
+ 'UV Index', 'UV Dose', 'Hi UV', 'Heat D-D', 'Cool D-D', 'In Temp', 'In Hum', 'In Dew',
+ 'In Heat', 'Temp 2nd', 'Hum 2nd', 'ET', 'Wind Samp', 'Wind Tx', 'ISS Recept', 'Arc. Int.']
+
+df.columns = header
+df.head()
+
+# Function to print max, min and mean
+
+def summary(head, units):
+    print('Max -', df[head].max(), units)
+    print('Min -', df[head].min(), units)
+    print('Average -', round(df[head].mean(), 1), units)
+    
+print("Temperature")
+summary('Temp Out', '/°C')
+print("\n")
+print("Humidity")
+summary('Out Hum', '%')
+print("\n")
+print("Pressure")
+summary('Bar', '/hPa')
+
+# Plot Temperature graph
+
+ax = df.plot(kind='line', x = 'DateTime', y ='Temp Out', fontsize=10, legend=False, color = 'black',  figsize=(20, 5))
+ax.set_xlabel(None)
+ax.set_ylabel("Temperature /°C", fontsize=16, labelpad=10)
+ax.grid()
+
+plot = ax.get_figure()
+plot.set_facecolor('white')
+plot.savefig("temperature" + '.png', bbox_inches='tight', dpi=600)
+
+# Plot Humdity graph
+
+ax = df.plot(kind='line', x = 'DateTime', y ='Out Hum', fontsize=10, legend=False, color = 'black',  figsize=(20, 5))
+ax.set_xlabel(None)
+ax.set_ylabel("Humdity %", fontsize=16, labelpad=10)
+ax.grid()
+
+plot = ax.get_figure()
+plot.set_facecolor('white')
+plot.savefig("humdity" + '.png', bbox_inches='tight', dpi=600)
+
+# Plot Pressure graph
+
+ax = df.plot(kind='line', x = 'DateTime', y ='Bar', fontsize=10, legend=False, color = 'black',  figsize=(20, 5))
+ax.set_xlabel(None)
+ax.set_ylabel("Pressure /hPa", fontsize=16, labelpad=10)
+ax.grid()
+
+plot = ax.get_figure()
+plot.set_facecolor('white')
+plot.savefig("pressure" + '.png', bbox_inches='tight', dpi=600)
+
+# Plot graph
+
+fig, axs = plt.subplots(3)
+
+ax1 = df.plot(kind='line', x = 'DateTime', y ='Temp Out', fontsize=12, legend=False, color = 'black', ax = axs[0])
+ax1.set_xlabel(None)
+ax1.set_ylabel("Temperature /°C", fontsize=18, labelpad=10)
+ax1.tick_params(labelbottom=False)
+ax1.grid()
+
+ax2 = df.plot(kind='line', x = 'DateTime', y ='Out Hum', fontsize=12, legend=False, color = 'black', ax = axs[1])
+ax2.set_xlabel(None)
+ax2.set_ylabel("Humdity %", fontsize=18, labelpad=10)
+ax2.tick_params(labelbottom=False)
+ax2.grid()
+
+ax3 = df.plot(kind='line', x = 'DateTime', y ='Bar', fontsize=12, legend=False, color = 'black', ax = axs[2])
+ax3.set_xlabel(None)
+ax3.set_ylabel("Pressure /hPa", fontsize=18, labelpad=10)
+ax3.grid()
+
+fig.set_figheight(15)
+fig.set_figwidth(25)
+
+fig.set_facecolor('white')
+fig.savefig("summary" + '.png', bbox_inches='tight', dpi=600)
