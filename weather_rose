@@ -5,14 +5,33 @@ import matplotlib.cm as cm
 import numpy as np
 import seaborn as sns
 
-# Create wind speed and direction variables
+# Import weather data from .txt file, skip first two rows
 
-df = pd.read_csv("sample_wind_mar.csv", parse_dates=["Timestamp"])
+df = pd.read_csv("mar_2021.txt", header=None, skiprows=2, parse_dates=[[0, 1]], dayfirst = True, sep="\t")
+df.head()
 
+# Replace headers
+
+header = ['DateTime', 'Temp Out', 'Hi Temp', 'Low Temp', 'Out Hum', 'Dew Pt.', 'Wind Speed',
+ 'Wind Dir', 'Wind Run', 'Hi Speed', 'Hi Dir', 'Wind Chill', 'Heat Index', 'THW Index',
+ 'THSW Index', 'Bar', 'Rain', 'Rain Rate', 'Solar Rad.', 'Solar Energy', 'Hi Solar Rad.',
+ 'UV Index', 'UV Dose', 'Hi UV', 'Heat D-D', 'Cool D-D', 'In Temp', 'In Hum', 'In Dew',
+ 'In Heat', 'Temp 2nd', 'Hum 2nd', 'ET', 'Wind Samp', 'Wind Tx', 'ISS Recept', 'Arc. Int.']
+
+df.columns = header
+df.head()
+
+# Replace blank wind direction values with NaN
+df['Wind Dir'].replace('---', np.nan, inplace=True)
+
+# Replace Compass points with bearings
+df['Wind Dir'].replace(['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'], 
+            [0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5], inplace=True)
+            
 # Plot graph
 
 ax = WindroseAxes.from_ax()
-ax.bar(df['direction'], df['speed'], cmap=cm.PuBu, normed=True, bins=np.arange(0, max(df['speed']), 5), opening=0.8, edgecolor='white')
+ax.bar(df['Wind Dir'], df['Wind Speed'], cmap=cm.Greys, normed=True, bins=np.arange(0, max(df['Wind Speed']), 5), opening=0.8, edgecolor='white')
 
 ax.set_xticklabels(['E', 'NE', 'N', 'NW','W', 'SW', 'S', 'SE'])
 
