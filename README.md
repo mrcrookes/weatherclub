@@ -1,3 +1,3 @@
 # weatherclub
 
-Code to use with David Weatherlink software.
+Code to use with Davis Weather Station and Weatherlink software.
