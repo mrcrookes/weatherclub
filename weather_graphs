@@ -2,30 +2,40 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
 import seaborn as sns
+import matplotlib.dates as mdates
 
 # Import weather data from .txt file, skip first two rows
 
-df = pd.read_csv("mar_2021.txt", header=None, skiprows=2, parse_dates=[[0, 1]], dayfirst = True, sep="\t")
+df = pd.read_csv("21_07_data_partial.txt", header=None, skiprows=2, parse_dates=[[0, 1]], dayfirst = True, sep="\t", na_values = "---")
 df.head()
 
 # Replace headers
 
 header = ['DateTime', 'Temp Out', 'Hi Temp', 'Low Temp', 'Out Hum', 'Dew Pt.', 'Wind Speed',
  'Wind Dir', 'Wind Run', 'Hi Speed', 'Hi Dir', 'Wind Chill', 'Heat Index', 'THW Index',
- 'THSW Index', 'Bar', 'Rain', 'Rain Rate', 'Solar Rad.', 'Solar Energy', 'Hi Solar Rad.',
- 'UV Index', 'UV Dose', 'Hi UV', 'Heat D-D', 'Cool D-D', 'In Temp', 'In Hum', 'In Dew',
- 'In Heat', 'Temp 2nd', 'Hum 2nd', 'ET', 'Wind Samp', 'Wind Tx', 'ISS Recept', 'Arc. Int.']
+ 'Bar', 'Rain', 'Rain Rate', 'Heat D-D', 'Cool D-D', 'In Temp', 'In Hum', 'In Dew',
+ 'In Heat', 'In EMC', 'In Air Density', 'Wind Samp', 'Wind Tx', 'ISS Recept', 'Arc. Int.']
 
 df.columns = header
 df.head()
+# df.dtypes
+# Other values
+# Solar Rad.', 'Solar Energy', 'Hi Solar Rad.', 'UV Index', 'UV Dose', 'Hi UV', 
+
+# Get Month and Year of data for Labels and filenames
+
+FileMonthYear = df['DateTime'][0].strftime('%y_%m')
+MonthYear = str(df['DateTime'][0].month_name() + ' ' + str(df['DateTime'][0].year))
 
 # Function to print max, min and mean
 
-def summary(head, units):
-    print('Max -', df[head].max(), units)
-    print('Min -', df[head].min(), units)
-    print('Average -', round(df[head].mean(), 1), units)
+def summary(column, units):
+    print('Max -', df[column].max(), units)
+    print('Min -', df[column].min(), units)
+    print('Average -', round(df[column].mean(), 1), units)
     
+# Print Max, min and averages
+
 print("Temperature")
 summary('Temp Out', '/°C')
 print("\n")
@@ -35,62 +45,76 @@ print("\n")
 print("Pressure")
 summary('Bar', '/hPa')
 
-# Plot Temperature graph
+# Plot graphs
 
-ax = df.plot(kind='line', x = 'DateTime', y ='Temp Out', fontsize=10, legend=False, color = 'black',  figsize=(20, 5))
-ax.set_xlabel(None)
-ax.set_ylabel("Temperature /°C", fontsize=16, labelpad=10)
-ax.grid()
+dates = df.loc[: , "DateTime"]
+temp = df.loc[: , "Temp Out"]
+humdity = df.loc[: , "Out Hum"]
+pressure = df.loc[: , "Bar"]
 
-plot = ax.get_figure()
-plot.set_facecolor('white')
-plot.savefig("temperature" + '.png', bbox_inches='tight', dpi=600)
+fig, (ax1, ax2, ax3) = plt.subplots(3)
 
-# Plot Humdity graph
-
-ax = df.plot(kind='line', x = 'DateTime', y ='Out Hum', fontsize=10, legend=False, color = 'black',  figsize=(20, 5))
-ax.set_xlabel(None)
-ax.set_ylabel("Humdity %", fontsize=16, labelpad=10)
-ax.grid()
-
-plot = ax.get_figure()
-plot.set_facecolor('white')
-plot.savefig("humdity" + '.png', bbox_inches='tight', dpi=600)
-
-# Plot Pressure graph
-
-ax = df.plot(kind='line', x = 'DateTime', y ='Bar', fontsize=10, legend=False, color = 'black',  figsize=(20, 5))
-ax.set_xlabel(None)
-ax.set_ylabel("Pressure /hPa", fontsize=16, labelpad=10)
-ax.grid()
-
-plot = ax.get_figure()
-plot.set_facecolor('white')
-plot.savefig("pressure" + '.png', bbox_inches='tight', dpi=600)
-
-# Plot graph
-
-fig, axs = plt.subplots(3)
-
-ax1 = df.plot(kind='line', x = 'DateTime', y ='Temp Out', fontsize=12, legend=False, color = 'black', ax = axs[0])
-ax1.set_xlabel(None)
-ax1.set_ylabel("Temperature /°C", fontsize=18, labelpad=10)
-ax1.tick_params(labelbottom=False)
+ax1.plot(dates, temp, color = "black")
+ax1.tick_params(labelbottom = False)
+ax1.tick_params(axis ='y', labelsize = 20)
 ax1.grid()
 
-ax2 = df.plot(kind='line', x = 'DateTime', y ='Out Hum', fontsize=12, legend=False, color = 'black', ax = axs[1])
-ax2.set_xlabel(None)
-ax2.set_ylabel("Humdity %", fontsize=18, labelpad=10)
-ax2.tick_params(labelbottom=False)
+ax2.plot(dates, humdity, color = "black")
+ax2.tick_params(labelbottom = False)
+ax2.tick_params(axis = 'y', labelsize = 20)
 ax2.grid()
 
-ax3 = df.plot(kind='line', x = 'DateTime', y ='Bar', fontsize=12, legend=False, color = 'black', ax = axs[2])
-ax3.set_xlabel(None)
-ax3.set_ylabel("Pressure /hPa", fontsize=18, labelpad=10)
+ax3.plot(dates, pressure, color = "black")
+ax3.tick_params(axis = 'y', labelsize = 20)
+ax3.tick_params(axis = 'x', labelsize = 20, labelrotation = 45)
 ax3.grid()
+
+ax3.xaxis.set_major_formatter(mdates.DateFormatter('%d-%b'))
 
 fig.set_figheight(15)
 fig.set_figwidth(25)
 
+ax1.annotate(MonthYear, xy = (0.02,0.9), xycoords='axes fraction', fontsize=20, backgroundcolor="white")
+
 fig.set_facecolor('white')
-fig.savefig("summary" + '.png', bbox_inches='tight', dpi=600)
+fig.savefig(FileMonthYear + "_summary" + '.png', bbox_inches='tight', dpi=600)
+
+# Plot graphs with rain
+
+dates = df.loc[: , "DateTime"]
+temp = df.loc[: , "Temp Out"]
+humdity = df.loc[: , "Out Hum"]
+rain = df.loc[: , "Rain Rate"]
+pressure = df.loc[: , "Bar"]
+
+fig, (ax1, ax2, ax3, ax4) = plt.subplots(4)
+
+ax1.plot(dates, temp, color = "black")
+ax1.tick_params(labelbottom = False)
+ax1.tick_params(axis ='y', labelsize = 20)
+ax1.grid()
+
+ax2.plot(dates, humdity, color = "black")
+ax2.tick_params(labelbottom = False)
+ax2.tick_params(axis = 'y', labelsize = 20)
+ax2.grid()
+
+ax3.plot(dates, rain, color = "black")
+ax3.tick_params(labelbottom = False)
+ax3.tick_params(axis = 'y', labelsize = 20)
+ax3.grid()
+
+ax4.plot(dates, pressure, color = "black")
+ax4.tick_params(axis = 'y', labelsize = 20)
+ax4.tick_params(axis = 'x', labelsize = 20, labelrotation = 45)
+ax4.grid()
+
+ax4.xaxis.set_major_formatter(mdates.DateFormatter('%d-%b'))
+
+fig.set_figheight(15)
+fig.set_figwidth(25)
+
+ax1.annotate(MonthYear, xy = (0.02,0.85), xycoords='axes fraction', fontsize=20, backgroundcolor="white")
+
+fig.set_facecolor('white')
+fig.savefig(FileMonthYear + "_summary_with_rain" + '.png', bbox_inches='tight', dpi=600)
