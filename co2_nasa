@@ -5,7 +5,9 @@ import seaborn as sns
 
 # Import co2 data from .txt file, skip first 53 rows
 
-df = pd.read_csv("co2_mm_mlo.txt", header=None, skiprows=53, delim_whitespace=True, parse_dates=[[0, 1]])
+url = 'ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt'
+
+df = pd.read_csv(url, header=None, skiprows=53, delim_whitespace=True, parse_dates=[[0, 1]])
 df.head()
 
 # Remove some columns
@@ -19,6 +21,16 @@ header = ['DateTime', 'CO2 (parts per million)']
 
 df.columns = header
 df.head()
+
+# Read bottom value
+
+CO2_latest = df.loc[len(df) - 1, 'CO2 (parts per million)']
+CO2_latest_date = df.loc[len(df) - 1, 'DateTime']
+
+# Get Month and Year bottom value for labels and filenames
+
+FileMonthYear = CO2_latest_date.strftime('%y_%m')
+MonthYear = CO2_latest_date.strftime('(%m/%y): ')
 
 # Remove dates before 2005
 
@@ -36,11 +48,11 @@ ax.set_ylabel("CO2 (parts per million)", fontsize=16, labelpad=10)
 
 
 
-ax.annotate('Lastest measurement: 415.88 ppm', xy = (0.95,0.95), xytext = (0.3,0.93), 
+ax.annotate('Latest measurement ' + MonthYear + str(CO2_latest), xy = (0.95,0.95), xytext = (0.3,0.93), 
             arrowprops={'arrowstyle': '->'}, xycoords='axes fraction')
 
 ax.annotate('Source: climate.nasa.gov', xy = (0.55,0.1), xycoords='axes fraction')
 
 plot = ax.get_figure()
 plot.set_facecolor('white')
-plot.savefig("co2" + '.png', bbox_inches='tight', dpi=600)
+plot.savefig(FileMonthYear + "_co2" + '.png', bbox_inches='tight', dpi=600)
